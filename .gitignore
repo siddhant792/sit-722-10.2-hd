@@ -1,0 +1,49 @@
+# Ignore Terraform state files
+*.tfstate
+*.tfstate.backup
+
+# Ignore Terraform crash log
+crash.log
+
+# Ignore Terraform override files
+*.tfvars
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Ignore local Terraform variables
+.terraform/
+
+# Ignore sensitive GCP credentials
+credentials.json
+
+# Ignore sensitive secrets or env files
+.env
+.env.*
+
+# Ignore Docker related files
+docker-compose.override.yml
+
+# Ignore log files
+*.log
+
+# Ignore build artifacts
+*.class
+*.jar
+*.war
+*.ear
+
+# Ignore Python bytecode
+__pycache__/
+*.pyc
+
+# Ignore Node.js dependencies
+node_modules/
+
+# Ignore system files
+.DS_Store
+Thumbs.db
+
+# Ignore GitHub workflow specific logs
+.github/workflows/*.log

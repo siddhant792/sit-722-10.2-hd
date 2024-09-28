@@ -1,0 +1,112 @@
+name: CI/CD Pipeline with Terraform
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  terraform:
+    name: Terraform Plan & Apply
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout the repository
+      uses: actions/checkout@v2
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_wrapper: false
+
+    - name: Create credentials file for GCP
+      run: |
+        echo "${{ secrets.GCP_SA_KEY }}" > credentials.json
+
+    - name: Terraform Init
+      working-directory: ./scripts/terraform
+      run: terraform init
+      env:
+        GOOGLE_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
+        GOOGLE_PROJECT: ${{ secrets.GCP_PROJECT_ID }}
+
+    - name: Terraform Plan
+      id: tf_plan 
+      working-directory: ./scripts/terraform
+      run: terraform plan -out=plan.out
+      env:
+        GOOGLE_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
+        GOOGLE_PROJECT: ${{ secrets.GCP_PROJECT_ID }}
+
+    - name: Check if Plan Contains Changes
+      id: tf_changes
+      run: |
+        if terraform show -json plan.out | jq .resource_changes | grep -q 'null'; then
+          echo "No changes detected"
+          echo "no_changes=true" >> $GITHUB_ENV
+        else
+          echo "Changes detected"
+          echo "no_changes=false" >> $GITHUB_ENV
+        fi
+      working-directory: ./scripts/terraform
+
+    - name: Apply Terraform
+      if: env.no_changes == 'false'
+      working-directory: ./scripts/terraform
+      run: terraform apply -auto-approve
+      env:
+        GOOGLE_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
+        GOOGLE_PROJECT: ${{ secrets.GCP_PROJECT_ID }}
+
+  build:
+    needs: terraform
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout the repository
+      uses: actions/checkout@v2
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+
+    - name: Make build-image.sh executable
+      run: chmod +x ./scripts/build-image.sh
+
+    - name: Build Docker images
+      run: ./scripts/build-image.sh
+    
+    - name: Make push-image.sh executable
+      run: chmod +x ./scripts/push-image.sh
+
+    - name: Push Docker images to Google Container Registry (GCR)
+      env:
+        GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+      run: ./scripts/push-image.sh
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout the repository
+      uses: actions/checkout@v2
+
+    - name: Make deploy.sh executable
+      run: chmod +x ./scripts/deploy.sh
+
+    - name: Deploy to Google Kubernetes Engine (GKE)
+      run: ./scripts/deploy.sh
+      env:
+        GOOGLE_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
+        GOOGLE_PROJECT: ${{ secrets.GCP_PROJECT_ID }}
+
+  delete:
+    if: github.event_name == 'delete'
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout the repository
+      uses: actions/checkout@v2
+
+    - name: Make delete.sh executable
+      run: chmod +x ./scripts/delete.sh
+
+    - name: Delete Kubernetes resources
+      run: ./scripts/delete.sh
