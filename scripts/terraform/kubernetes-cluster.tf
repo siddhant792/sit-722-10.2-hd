@@ -4,12 +4,10 @@ resource "google_container_cluster" "task10" {
 
   node_config {
     machine_type = "e2-medium"
+    disk_size_gb = 10
   }
 
-  node_pool {
-    name       = "default"
-    node_count = 2
-  }
+  initial_node_count = 1
 
   ip_allocation_policy {}
 }
