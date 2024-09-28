@@ -3,8 +3,11 @@
 GKE_CLUSTER_NAME="task10"
 GKE_REGION="europe-west1"
 
+TEMP_KEY_FILE=$(mktemp)
+echo "${GCP_SA_KEY}" > ${TEMP_KEY_FILE}
+
 echo "Logging into Google Cloud..."
-echo "${GCP_SA_KEY}" | gcloud auth activate-service-account --key-file=/dev/stdin
+gcloud auth activate-service-account --key-file=${TEMP_KEY_FILE}
 
 echo "Retrieving GKE credentials..."
 gcloud container clusters get-credentials $GKE_CLUSTER_NAME --region $GKE_REGION
