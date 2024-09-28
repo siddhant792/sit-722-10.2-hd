@@ -92,6 +92,11 @@ jobs:
         project_id: ${{ secrets.GCP_PROJECT_ID }}
         export_default_credentials: true
 
+    - name: Authenticate to GKE
+      run: |
+        gcloud container clusters get-credentials task10 --region europe-west1
+        export USE_GKE_GCLOUD_AUTH_PLUGIN=True
+
     - name: Make deploy.sh executable
       run: chmod +x ./scripts/deploy.sh
 
