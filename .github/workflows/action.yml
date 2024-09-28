@@ -19,10 +19,6 @@ jobs:
       with:
         terraform_wrapper: false
 
-    - name: Create credentials file for GCP
-      run: |
-        printf "%s" "${{ secrets.GCP_SA_KEY }}" > credentials.json
-
     - name: Terraform Init
       working-directory: ./scripts/terraform
       run: terraform init
