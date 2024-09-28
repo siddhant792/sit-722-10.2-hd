@@ -85,13 +85,16 @@ jobs:
     - name: Checkout the repository
       uses: actions/checkout@v2
 
-    - name: Get GKE credentials
-      uses: google-github-actions/get-gke-credentials@v2.2.1
+    - id: 'auth'
+      uses: 'google-github-actions/auth@v2'
       with:
-        cluster_name: task10
-        location: europe-west1
-        credentials: ${{ secrets.GCP_SA_KEY }}
-        project_id: ${{ secrets.GCP_PROJECT_ID }}
+        credentials_json: '${{ secrets.GCP_SA_KEY }}'
+
+    - id: 'get-credentials'
+      uses: 'google-github-actions/get-gke-credentials@v2'
+      with:
+        cluster_name: 'task10'
+        location: 'europe-west1'
 
     - name: Make deploy.sh executable
       run: chmod +x ./scripts/deploy.sh
