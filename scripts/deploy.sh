@@ -6,6 +6,9 @@ GKE_REGION="europe-west1"
 TEMP_KEY_FILE="cred.json"
 echo "${GCP_SA_KEY}" > ${TEMP_KEY_FILE}
 
+echo "Contents of the temporary key file:"
+cat ${TEMP_KEY_FILE}
+
 echo "Logging into Google Cloud..."
 gcloud auth activate-service-account --key-file=${TEMP_KEY_FILE}
 
