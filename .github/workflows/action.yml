@@ -21,7 +21,7 @@ jobs:
 
     - name: Create credentials file for GCP
       run: |
-        echo "${{ secrets.GCP_SA_KEY }}" > credentials.json
+        printf "%s" "${{ secrets.GCP_SA_KEY }}" > credentials.json
 
     - name: Terraform Init
       working-directory: ./scripts/terraform
