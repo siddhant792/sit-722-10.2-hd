@@ -3,7 +3,7 @@
 GKE_CLUSTER_NAME="task10"
 GKE_REGION="europe-west1"
 
-TEMP_KEY_FILE=$(mktemp)
+TEMP_KEY_FILE="cred.json"
 echo "${GCP_SA_KEY}" > ${TEMP_KEY_FILE}
 
 echo "Logging into Google Cloud..."
