@@ -1,5 +1,6 @@
 variable "gcp_project_id" {
   description = "sit-437003"
+  default = "sit-437003"
 }
 
 variable "location" {
