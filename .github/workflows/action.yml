@@ -96,6 +96,8 @@ jobs:
       run: chmod +x ./scripts/deploy.sh
 
     - name: Deploy to GKE using deploy.sh
+      env:
+        GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
       run: ./scripts/deploy.sh
 
   delete:
